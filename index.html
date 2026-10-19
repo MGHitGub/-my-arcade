@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b25">
+  <title>Burger Run | My Arcade</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f6f4e9;
+      --muted: #a9b7b8;
+      --sky: #101b25;
+      --mint: #9ee3c1;
+      --gold: #ffd36e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 50% 22%, #314442 0, transparent 42%),
+        repeating-linear-gradient(0deg, transparent 0 39px, #ffffff08 40px),
+        var(--sky);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(100%, 760px);
+      text-align: center;
+      animation: arrive 550ms ease-out both;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .burger {
+      display: block;
+      margin-bottom: 18px;
+      font-size: 64px;
+      line-height: 1;
+      filter: drop-shadow(0 8px 18px #ffd36e44);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(3.5rem, 12vw, 7rem);
+      line-height: .95;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .description {
+      max-width: 450px;
+      margin: 22px auto 30px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .play-button {
+      display: inline-grid;
+      min-width: 220px;
+      min-height: 64px;
+      place-items: center;
+      padding: 14px 32px;
+      border: 2px solid #c1f2d8;
+      border-radius: 6px;
+      color: #15232a;
+      background: var(--mint);
+      box-shadow: 0 8px 0 #4b9274, 0 16px 35px #0005;
+      font-size: 21px;
+      font-weight: 900;
+      text-decoration: none;
+      transition: transform 130ms ease, box-shadow 130ms ease, background 130ms ease;
+    }
+
+    .play-button:hover {
+      transform: translateY(-3px);
+      background: #b4f0d2;
+      box-shadow: 0 11px 0 #4b9274, 0 19px 38px #0005;
+    }
+
+    .play-button:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #4b9274, 0 10px 25px #0005;
+    }
+
+    .play-button:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 5px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="burger" aria-hidden="true">🍔</span>
+    <p class="eyebrow">One hungry delivery shift</p>
+    <h1>Burger Run</h1>
+    <p class="description">Race beneath falling burgers, catch 10 to finish the rush, and try not to miss 3.</p>
+    <a class="play-button" href="game.html">Play</a>
+  </main>
+</body>
+</html>

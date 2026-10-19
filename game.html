@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b25">
+  <title>Burger Run</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f6f4e9;
+      --muted: #a9b7b8;
+      --sky: #101b25;
+      --panel: #192933;
+      --line: #34464b;
+      --mint: #9ee3c1;
+      --gold: #ffd36e;
+      --coral: #f08b76;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 50% 5%, #263b3d 0, transparent 46%),
+        repeating-linear-gradient(0deg, transparent 0 39px, #ffffff08 40px),
+        var(--sky);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .arcade {
+      width: min(100%, 980px);
+      animation: arrive 500ms ease-out both;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .topline, .scoreboard, .score, .stage-head, .stage-foot, .touch-controls {
+      display: flex;
+      align-items: center;
+    }
+
+    .topline {
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      color: #15232a;
+      background: var(--gold);
+      clip-path: polygon(50% 0, 61% 35%, 100% 38%, 70% 61%, 81% 100%, 50% 76%, 19% 100%, 30% 61%, 0 38%, 39% 35%);
+      font-size: 0;
+      filter: drop-shadow(0 0 12px #ffd36e55);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .eyebrow {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .scoreboard { gap: 10px; }
+
+    .score {
+      gap: 10px;
+      min-width: 115px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #15232b;
+    }
+
+    .score-icon { font-size: 19px; line-height: 1; }
+    .score-copy { display: grid; gap: 2px; }
+    .score-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .score-value { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    #catch-count { color: var(--gold); }
+    #miss-count { color: var(--coral); }
+
+    .stage {
+      overflow: hidden;
+      border: 1px solid #52635e;
+      border-radius: 8px;
+      background: #12202a;
+      box-shadow: 0 20px 70px #0005, inset 0 0 0 5px #ffffff06;
+    }
+
+    .stage-head, .stage-foot {
+      min-height: 42px;
+      justify-content: space-between;
+      padding: 0 16px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+    }
+
+    .stage-head { border-bottom: 1px solid #ffffff12; }
+    .stage-foot { border-top: 1px solid #ffffff12; text-transform: none; letter-spacing: 0; }
+    .status { display: flex; align-items: center; gap: 8px; color: var(--mint); }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; }
+
+    .playfield {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 12 / 7;
+      background: #142631;
+    }
+
+    canvas { display: block; width: 100%; height: 100%; }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: #0e192064;
+      backdrop-filter: blur(1px);
+      text-align: center;
+    }
+
+    .overlay[hidden] { display: none; }
+
+    .dialog { width: min(100%, 360px); }
+    .dialog-kicker { margin: 0 0 9px; color: var(--gold); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
+    .dialog h2 { margin: 0; font-size: clamp(26px, 5vw, 42px); line-height: 1.05; }
+    .dialog-copy { margin: 12px auto 20px; max-width: 290px; color: #c2ceca; font-size: 14px; line-height: 1.5; }
+
+    button {
+      color: #15232a;
+      font: inherit;
+      font-weight: 800;
+      border: 0;
+      border-radius: 5px;
+      background: var(--mint);
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    button:hover { transform: translateY(-2px); background: #b4f0d2; }
+    button:active { transform: translateY(0); }
+    button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+    #play-button { min-width: 142px; padding: 12px 20px; }
+
+    .touch-controls {
+      display: none;
+      justify-content: center;
+      gap: 14px;
+      padding-top: 12px;
+    }
+
+    .touch-button {
+      width: 72px;
+      height: 48px;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      background: var(--panel);
+      font-size: 22px;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .touch-button:hover { background: #263d43; }
+
+    @media (pointer: coarse), (max-width: 620px) {
+      body { padding: 14px; }
+      .topline { align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+      .scoreboard { width: 100%; }
+      .score { flex: 1; }
+      .touch-controls { display: flex; }
+      .stage-head, .stage-foot { min-height: 36px; padding: 0 10px; font-size: 10px; }
+      .stage-foot .desktop-hint { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="arcade" aria-label="Burger Run starring Bob Burger the Third">
+    <header class="topline">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">Star</span>
+        <div>
+          <h1>Burger Run</h1>
+          <p class="eyebrow">Bob Burger the Third · Delivery courier</p>
+        </div>
+      </div>
+      <div class="scoreboard" aria-live="polite">
+        <div class="score"><span class="score-icon" aria-hidden="true">🍔</span><span class="score-copy"><span class="score-label">Delivered</span><span class="score-value" id="catch-count">0 / 10</span></span></div>
+        <div class="score"><span class="score-icon" aria-hidden="true">◇</span><span class="score-copy"><span class="score-label">Missed</span><span class="score-value" id="miss-count">0 / 3</span></span></div>
+      </div>
+    </header>
+
+    <section class="stage" aria-label="Game playfield">
+      <div class="stage-head">
+        <span>Delivery run</span>
+        <span class="status"><span class="status-dot"></span><span id="game-status">Ready</span></span>
+      </div>
+      <div class="playfield">
+        <canvas id="game" aria-label="Falling burgers and a delivery person holding a McDonald's bag"></canvas>
+        <div class="overlay" id="overlay">
+          <div class="dialog">
+            <p class="dialog-kicker" id="dialog-kicker">The dinner rush is on</p>
+            <h2 id="dialog-title">Catch the burgers</h2>
+            <p class="dialog-copy" id="dialog-copy">Move your delivery person beneath the falling burgers. Catch 10 to win. Miss 3 and the shift is over.</p>
+            <button id="play-button" type="button">Start delivery</button>
+          </div>
+        </div>
+      </div>
+      <div class="stage-foot">
+        <span>Deliver 10 burgers · Miss 3 and the shift is over</span>
+        <span class="desktop-hint">Move with ← → or A / D</span>
+      </div>
+    </section>
+
+    <div class="touch-controls" aria-label="Courier movement controls">
+      <button class="touch-button" type="button" data-direction="-1" aria-label="Move Bob Burger the Third left">←</button>
+      <button class="touch-button" type="button" data-direction="1" aria-label="Move Bob Burger the Third right">→</button>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const canvas = document.querySelector("#game");
+      const context = canvas.getContext("2d");
+      const overlay = document.querySelector("#overlay");
+      const playButton = document.querySelector("#play-button");
+      const catchCount = document.querySelector("#catch-count");
+      const missCount = document.querySelector("#miss-count");
+      const gameStatus = document.querySelector("#game-status");
+      const dialogKicker = document.querySelector("#dialog-kicker");
+      const dialogTitle = document.querySelector("#dialog-title");
+      const dialogCopy = document.querySelector("#dialog-copy");
+      const width = 960;
+      const height = 560;
+      const courier = { x: width / 2, bagY: height - 99, bagWidth: 148, bagHeight: 66, speed: 570 };
+      const burgers = [];
+      const introBurgers = Array.from({ length: 6 }, (_, index) => {
+        const spread = index - 2.5;
+        return {
+          startTime: 1.15 + index * .055,
+          startX: width / 2 + spread * 6,
+          endX: width / 2 + spread * 120,
+          radius: 17,
+          rotation: 0,
+          speed: 105 + Math.random() * 35
+        };
+      });
+      const sparkles = Array.from({ length: 75 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: Math.random() * 1.8 + .5,
+        phase: Math.random() * Math.PI * 2
+      }));
+      const keys = new Set();
+      let caught = 0;
+      let missed = 0;
+      let running = false;
+      let spawnTimer = 0;
+      let previousTime = 0;
+      let elapsed = 0;
+      let pointerDirection = 0;
+      let introActive = true;
+      let introTime = 0;
+
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(rect.width * ratio);
+        canvas.height = Math.round(rect.height * ratio);
+        context.setTransform(canvas.width / width, 0, 0, canvas.height / height, 0, 0);
+        draw();
+      }
+
+      function drawBurger(x, y, radius, rotation) {
+        context.save();
+        context.translate(x, y);
+        context.rotate(rotation);
+        context.shadowColor = "#ffc35b99";
+        context.shadowBlur = 14;
+        context.fillStyle = "#6a3828";
+        context.beginPath();
+        context.ellipse(0, radius * .36, radius * 1.25, radius * .38, 0, 0, Math.PI * 2);
+        context.fill();
+        context.shadowBlur = 0;
+        context.fillStyle = "#f4c14f";
+        context.beginPath();
+        context.ellipse(0, radius * .08, radius * 1.28, radius * .32, 0, 0, Math.PI * 2);
+        context.fill();
+        context.fillStyle = "#6caa54";
+        context.beginPath();
+        context.moveTo(-radius * 1.18, -radius * .08);
+        context.lineTo(-radius * .74, -radius * .22);
+        context.lineTo(-radius * .38, -radius * .1);
+        context.lineTo(0, -radius * .25);
+        context.lineTo(radius * .34, -radius * .08);
+        context.lineTo(radius * .75, -radius * .23);
+        context.lineTo(radius * 1.17, -radius * .06);
+        context.lineTo(radius * 1.08, radius * .08);
+        context.lineTo(-radius * 1.08, radius * .08);
+        context.closePath();
+        context.fill();
+        context.fillStyle = "#9d5438";
+        context.beginPath();
+        context.ellipse(0, -radius * .08, radius * 1.17, radius * .22, 0, 0, Math.PI * 2);
+        context.fill();
+        context.fillStyle = "#d88b3f";
+        context.beginPath();
+        context.ellipse(0, -radius * .25, radius * 1.12, radius * .52, 0, Math.PI, Math.PI * 2);
+        context.lineTo(radius * 1.12, -radius * .2);
+        context.quadraticCurveTo(0, radius * .05, -radius * 1.12, -radius * .2);
+        context.closePath();
+        context.fill();
+        context.fillStyle = "#ffe2a0";
+        for (const seed of [[-.55, -.45], [-.14, -.61], [.3, -.57], [.65, -.4]]) {
+          context.beginPath();
+          context.ellipse(radius * seed[0], radius * seed[1], radius * .075, radius * .035, -.35, 0, Math.PI * 2);
+          context.fill();
+        }
+        context.restore();
+      }
+
+      function drawCourier(lean = 0, reach = 0) {
+        const x = courier.x;
+        const bagLeft = x - courier.bagWidth / 2;
+        const bagTop = courier.bagY;
+        context.save();
+        context.translate(x, height - 66);
+        context.rotate(lean);
+        context.translate(-x, -(height - 66));
+        context.lineCap = "round";
+        context.lineJoin = "round";
+
+        context.fillStyle = "#20292c";
+        context.beginPath();
+        context.roundRect(x - 29, height - 45, 23, 47, 8);
+        context.roundRect(x + 6, height - 45, 23, 47, 8);
+        context.fill();
+        context.fillStyle = "#d7d0bf";
+        context.beginPath();
+        context.ellipse(x - 17, height - 5, 20, 6, 0, 0, Math.PI * 2);
+        context.ellipse(x + 18, height - 5, 20, 6, 0, 0, Math.PI * 2);
+        context.fill();
+
+        context.fillStyle = "#d9553d";
+        context.beginPath();
+        context.roundRect(x - 43, bagTop - 7, 86, 92, 20);
+        context.fill();
+
+        context.fillStyle = "#f3bd69";
+        context.beginPath();
+        context.roundRect(x - 14, bagTop - 32, 28, 29, 10);
+        context.fill();
+        context.fillStyle = "#e8b88c";
+        context.beginPath();
+        context.arc(x, bagTop - 59, 24, 0, Math.PI * 2);
+        context.fill();
+        context.fillStyle = "#442e29";
+        context.beginPath();
+        context.arc(x, bagTop - 67, 23, Math.PI, Math.PI * 2);
+        context.lineTo(x + 22, bagTop - 57);
+        context.quadraticCurveTo(x, bagTop - 49, x - 22, bagTop - 57);
+        context.closePath();
+        context.fill();
+        context.fillStyle = "#f2c34f";
+        context.beginPath();
+        context.roundRect(x - 27, bagTop - 73, 54, 8, 4);
+        context.fill();
+
+        context.strokeStyle = "#e8b88c";
+        context.lineWidth = 12;
+        const leftHandX = bagLeft - 2 - (reach < 0 ? -reach * 54 : 0);
+        const leftHandY = bagTop + 20 - (reach < 0 ? -reach * 48 : 0);
+        const rightHandX = bagLeft + courier.bagWidth + 2 + (reach > 0 ? reach * 54 : 0);
+        const rightHandY = bagTop + 20 - (reach > 0 ? reach * 48 : 0);
+        context.beginPath();
+        context.moveTo(x - 34, bagTop + 11);
+        context.lineTo(leftHandX, leftHandY);
+        context.moveTo(x + 34, bagTop + 11);
+        context.lineTo(rightHandX, rightHandY);
+        context.stroke();
+
+        context.shadowColor = "#0005";
+        context.shadowBlur = 13;
+        context.fillStyle = "#f0e4c8";
+        context.beginPath();
+        context.roundRect(bagLeft, bagTop, courier.bagWidth, courier.bagHeight, 4);
+        context.fill();
+        context.shadowBlur = 0;
+        context.fillStyle = "#e8d6b0";
+        context.beginPath();
+        context.moveTo(bagLeft, bagTop + 4);
+        context.lineTo(x, bagTop + 14);
+        context.lineTo(bagLeft + courier.bagWidth, bagTop + 4);
+        context.lineTo(bagLeft + courier.bagWidth, bagTop + 13);
+        context.lineTo(x, bagTop + 23);
+        context.lineTo(bagLeft, bagTop + 13);
+        context.closePath();
+        context.fill();
+        context.strokeStyle = "#c8b994";
+        context.lineWidth = 3;
+        context.beginPath();
+        context.moveTo(x - 14, bagTop + 35);
+        context.quadraticCurveTo(x - 8, bagTop + 22, x, bagTop + 35);
+        context.quadraticCurveTo(x + 8, bagTop + 22, x + 14, bagTop + 35);
+        context.stroke();
+        context.fillStyle = "#b12b24";
+        context.font = "bold 10px Trebuchet MS, sans-serif";
+        context.textAlign = "center";
+        context.fillText("McDonald's", x, bagTop + 52);
+        context.fillStyle = "#e8b88c";
+        context.beginPath();
+        context.arc(leftHandX, leftHandY, 7, 0, Math.PI * 2);
+        context.arc(rightHandX, rightHandY, 7, 0, Math.PI * 2);
+        context.fill();
+        context.restore();
+      }
+
+      function drawIntroScene(time) {
+        const trip = Math.max(0, Math.min(1, (time - .8) / .48));
+        const recover = Math.max(0, Math.min(1, (time - 4.45) / .55));
+        const lean = (trip * (1 - recover) + .16 * recover) * .72;
+        const reach = time > 1.2 && time < 4.5 ? Math.sin((time - 1.2) * 3.1) * .92 : 0;
+        courier.x = width / 2 + Math.sin(Math.min(time, 4.5) * 1.3) * (time > .8 && time < 4.5 ? 24 : 0);
+
+        for (const burger of introBurgers) {
+          const flight = (time - burger.startTime) / 1.9;
+          if (flight >= 0 && flight <= 1) {
+            burger.x = burger.startX + (burger.endX - burger.startX) * flight;
+            burger.y = courier.bagY + 7 - flight * (courier.bagY + 40);
+            burger.rotation = flight * Math.PI * 2.5;
+            drawBurger(burger.x, burger.y, burger.radius, burger.rotation);
+          }
+        }
+
+        drawCourier(lean, reach);
+      }
+
+      function draw() {
+        context.clearRect(0, 0, width, height);
+        const sky = context.createLinearGradient(0, 0, 0, height);
+        sky.addColorStop(0, "#1a3039");
+        sky.addColorStop(.7, "#142831");
+        sky.addColorStop(1, "#203a3b");
+        context.fillStyle = sky;
+        context.fillRect(0, 0, width, height);
+
+        for (const sparkle of sparkles) {
+          const shimmer = .35 + (Math.sin(elapsed * 1.5 + sparkle.phase) + 1) * .24;
+          context.globalAlpha = shimmer;
+          context.fillStyle = "#c6e2d3";
+          context.fillRect(sparkle.x, sparkle.y, sparkle.size, sparkle.size);
+        }
+        context.globalAlpha = 1;
+
+        context.strokeStyle = "#d4e7d51c";
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(0, height - 23);
+        context.lineTo(width, height - 23);
+        context.stroke();
+
+        if (introActive) {
+          drawIntroScene(Math.min(introTime, 5.1));
+        } else {
+          for (const burger of burgers) {
+            context.globalAlpha = .2;
+            context.strokeStyle = "#ffc35b";
+            context.lineWidth = 4;
+            context.beginPath();
+            context.moveTo(burger.x, burger.y - burger.radius * 2.7);
+            context.lineTo(burger.x, burger.y - burger.radius);
+            context.stroke();
+            context.globalAlpha = 1;
+            drawBurger(burger.x, burger.y, burger.radius, burger.rotation);
+          }
+          drawCourier();
+        }
+      }
+
+      function updateScore() {
+        catchCount.textContent = `${caught} / 10`;
+        missCount.textContent = `${missed} / 3`;
+      }
+
+      function finish(won) {
+        running = false;
+        gameStatus.textContent = won ? "Shift complete" : "Shift ended";
+        dialogKicker.textContent = won ? "Order complete" : "The burgers got away";
+        dialogTitle.textContent = won ? "Beautifully delivered" : "Try another shift";
+        dialogCopy.textContent = won
+          ? `You delivered all 10 burgers. The dinner rush is handled.`
+          : `You delivered ${caught} burger${caught === 1 ? "" : "s"}. You can take another run.`;
+        playButton.textContent = "Play again";
+        overlay.hidden = false;
+        playButton.focus();
+      }
+
+      function spawnBurger() {
+        const radius = 14 + Math.random() * 4;
+        burgers.push({
+          x: 35 + Math.random() * (width - 70),
+          y: -radius,
+          radius,
+          rotation: Math.random() * Math.PI,
+          speed: 105 + Math.random() * 35 + Math.min(caught * 2, 20)
+        });
+      }
+
+      function frame(time) {
+        const delta = Math.min((time - previousTime) / 1000 || 0, .04);
+        previousTime = time;
+        if (running) {
+          elapsed += delta;
+          spawnTimer += delta;
+          if (spawnTimer >= 1.12) {
+            spawnTimer = 0;
+            spawnBurger();
+          }
+
+          const direction = (keys.has("ArrowRight") || keys.has("d") || keys.has("D") ? 1 : 0)
+            - (keys.has("ArrowLeft") || keys.has("a") || keys.has("A") ? 1 : 0)
+            + pointerDirection;
+          courier.x = Math.max(courier.bagWidth / 2 + 8, Math.min(width - courier.bagWidth / 2 - 8, courier.x + direction * courier.speed * delta));
+
+          for (let index = burgers.length - 1; index >= 0; index -= 1) {
+            const burger = burgers[index];
+            burger.y += burger.speed * delta;
+            burger.rotation += delta * .8;
+            if (burger.y + burger.radius >= courier.bagY - 5 && burger.y - burger.radius <= courier.bagY + courier.bagHeight
+              && Math.abs(burger.x - courier.x) <= courier.bagWidth / 2 + burger.radius * 1.2) {
+              burgers.splice(index, 1);
+              caught += 1;
+              updateScore();
+              if (caught >= 10) finish(true);
+            } else if (burger.y - burger.radius > height) {
+              burgers.splice(index, 1);
+              missed += 1;
+              updateScore();
+              if (missed >= 3) finish(false);
+            }
+          }
+        } else {
+          elapsed += delta;
+          if (introActive) introTime += delta;
+        }
+        draw();
+        requestAnimationFrame(frame);
+      }
+
+      function startGame() {
+        const startFromIntro = introActive;
+        introActive = false;
+        burgers.length = 0;
+        if (startFromIntro) {
+          introBurgers.forEach((burger, index) => {
+            burger.x = 35 + Math.random() * (width - 70);
+            burger.y = -burger.radius - index * 22;
+            burger.rotation = 0;
+            burgers.push(burger);
+          });
+        }
+        caught = 0;
+        missed = 0;
+        spawnTimer = .5;
+        courier.x = width / 2;
+        updateScore();
+        running = true;
+        gameStatus.textContent = "In play";
+        overlay.hidden = true;
+        canvas.focus({ preventScroll: true });
+      }
+
+      playButton.addEventListener("click", startGame);
+      window.addEventListener("keydown", event => {
+        if (["ArrowLeft", "ArrowRight", " "].includes(event.key)) event.preventDefault();
+        keys.add(event.key);
+        if (event.key === " " && !running) startGame();
+      });
+      window.addEventListener("keyup", event => keys.delete(event.key));
+      window.addEventListener("blur", () => keys.clear());
+
+      canvas.addEventListener("pointerdown", event => {
+        if (!running) return;
+        const rect = canvas.getBoundingClientRect();
+        courier.x = Math.max(courier.bagWidth / 2, Math.min(width - courier.bagWidth / 2, (event.clientX - rect.left) / rect.width * width));
+      });
+      canvas.addEventListener("pointermove", event => {
+        if (!running || event.buttons === 0) return;
+        const rect = canvas.getBoundingClientRect();
+        courier.x = Math.max(courier.bagWidth / 2, Math.min(width - courier.bagWidth / 2, (event.clientX - rect.left) / rect.width * width));
+      });
+
+      for (const button of document.querySelectorAll(".touch-button")) {
+        const setDirection = event => {
+          event.preventDefault();
+          pointerDirection = Number(button.dataset.direction);
+        };
+        const clearDirection = () => { pointerDirection = 0; };
+        button.addEventListener("pointerdown", setDirection);
+        button.addEventListener("pointerup", clearDirection);
+        button.addEventListener("pointercancel", clearDirection);
+        button.addEventListener("pointerleave", clearDirection);
+      }
+
+      new ResizeObserver(resizeCanvas).observe(canvas);
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
