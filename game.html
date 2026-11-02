@@ -39,6 +39,30 @@
       animation: arrive 500ms ease-out both;
     }
 
+    .back-link {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--mint);
+      background: #15232b;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: background 120ms ease, transform 120ms ease;
+    }
+
+    .back-link:hover {
+      transform: translateY(-2px);
+      background: #20363a;
+    }
+
+    .back-link:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 3px;
+    }
+
     @keyframes arrive {
       from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
@@ -206,6 +230,7 @@
 </head>
 <body>
   <main class="arcade" aria-label="Burger Run starring Bob Burger the Third">
+    <a class="back-link" href="arcade.html">← Back to the arcade</a>
     <header class="topline">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true">Star</span>
@@ -260,6 +285,7 @@
       const dialogKicker = document.querySelector("#dialog-kicker");
       const dialogTitle = document.querySelector("#dialog-title");
       const dialogCopy = document.querySelector("#dialog-copy");
+      const autoWin = sessionStorage.getItem("myArcadeAutoWin") === "true";
       const width = 960;
       const height = 560;
       const courier = { x: width / 2, bagY: height - 99, bagWidth: 148, bagHeight: 66, speed: 570 };
@@ -578,26 +604,20 @@
       }
 
       function startGame() {
-        const startFromIntro = introActive;
         introActive = false;
         burgers.length = 0;
-        if (startFromIntro) {
-          introBurgers.forEach((burger, index) => {
-            burger.x = 35 + Math.random() * (width - 70);
-            burger.y = -burger.radius - index * 22;
-            burger.rotation = 0;
-            burgers.push(burger);
-          });
-        }
         caught = 0;
         missed = 0;
-        spawnTimer = .5;
+        spawnTimer = 0;
+        if (autoWin) caught = 10;
+        spawnBurger();
         courier.x = width / 2;
         updateScore();
         running = true;
         gameStatus.textContent = "In play";
         overlay.hidden = true;
         canvas.focus({ preventScroll: true });
+        if (autoWin) finish(true);
       }
 
       playButton.addEventListener("click", startGame);

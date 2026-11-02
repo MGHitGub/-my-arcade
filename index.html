@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101b25">
-  <title>Burger Run | My Arcade</title>
+  <title>Welcome | My Arcade</title>
   <style>
     :root {
       color-scheme: dark;
@@ -42,14 +42,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .burger {
-      display: block;
-      margin-bottom: 18px;
-      font-size: 64px;
-      line-height: 1;
-      filter: drop-shadow(0 8px 18px #ffd36e44);
-    }
-
     .eyebrow {
       margin: 0 0 12px;
       color: var(--gold);
@@ -61,10 +53,9 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(3.5rem, 12vw, 7rem);
-      line-height: .95;
+      font-size: clamp(3rem, 10vw, 6.5rem);
+      line-height: .98;
       font-weight: 900;
-      letter-spacing: 0;
       text-wrap: balance;
     }
 
@@ -76,7 +67,7 @@
       line-height: 1.55;
     }
 
-    .play-button {
+    .enter-button {
       display: inline-grid;
       min-width: 220px;
       min-height: 64px;
@@ -93,18 +84,18 @@
       transition: transform 130ms ease, box-shadow 130ms ease, background 130ms ease;
     }
 
-    .play-button:hover {
+    .enter-button:hover {
       transform: translateY(-3px);
       background: #b4f0d2;
       box-shadow: 0 11px 0 #4b9274, 0 19px 38px #0005;
     }
 
-    .play-button:active {
+    .enter-button:active {
       transform: translateY(4px);
       box-shadow: 0 4px 0 #4b9274, 0 10px 25px #0005;
     }
 
-    .play-button:focus-visible {
+    .enter-button:focus-visible {
       outline: 3px solid var(--gold);
       outline-offset: 5px;
     }
@@ -119,11 +110,10 @@
 </head>
 <body>
   <main>
-    <span class="burger" aria-hidden="true">🍔</span>
-    <p class="eyebrow">One hungry delivery shift</p>
-    <h1>Burger Run</h1>
-    <p class="description">Race beneath falling burgers, catch 10 to finish the rush, and try not to miss 3.</p>
-    <a class="play-button" href="game.html">Play</a>
+    <p class="eyebrow">Your next high score starts here</p>
+    <h1>Welcome to my Arcade.</h1>
+    <p class="description">Pick a game, jump in, and see how far you can get.</p>
+    <a class="enter-button" href="arcade.html">Enter the arcade</a>
   </main>
 </body>
 </html>

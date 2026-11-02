@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b25">
+  <title>Arcade | My Arcade</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f6f4e9;
+      --muted: #a9b7b8;
+      --sky: #101b25;
+      --panel: #192933;
+      --line: #34464b;
+      --mint: #9ee3c1;
+      --gold: #ffd36e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 32px 24px;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 50% 5%, #263b3d 0, transparent 46%),
+        repeating-linear-gradient(0deg, transparent 0 39px, #ffffff08 40px),
+        var(--sky);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(100%, 980px);
+      margin: 0 auto;
+      animation: arrive 500ms ease-out both;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .back-link {
+      display: inline-block;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--mint);
+      background: #15232b;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: background 120ms ease, transform 120ms ease;
+    }
+
+    .back-link:hover {
+      transform: translateY(-2px);
+      background: #20363a;
+    }
+
+    .page-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .special-button, .dialog-button {
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--ink);
+      background: #15232b;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 120ms ease, transform 120ms ease;
+    }
+
+    .special-button:hover, .dialog-button:hover {
+      transform: translateY(-2px);
+      background: #20363a;
+    }
+
+    .special-button[aria-pressed="true"] {
+      border-color: var(--mint);
+      color: var(--mint);
+    }
+
+    .special-button:focus-visible, .dialog-button:focus-visible,
+    .game-card:focus-visible, .back-link:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 5px;
+    }
+
+    .signin-dialog {
+      width: min(calc(100% - 32px), 390px);
+      padding: 26px;
+      border: 1px solid #52635e;
+      border-radius: 8px;
+      color: var(--ink);
+      background: #192933;
+      box-shadow: 0 24px 80px #0009;
+    }
+
+    .signin-dialog::backdrop { background: #081117c9; backdrop-filter: blur(3px); }
+    .signin-dialog h2 { margin: 0; font-size: 26px; }
+    .signin-copy { margin: 10px 0 18px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .password-label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 800; }
+
+    .password-input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--ink);
+      background: #101b25;
+      font: inherit;
+    }
+
+    .password-input:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .signin-error { min-height: 20px; margin: 8px 0 12px; color: #ff9f8b; font-size: 13px; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+    .dialog-button.primary {
+      border-color: #c1f2d8;
+      color: #15232a;
+      background: var(--mint);
+    }
+
+    .dialog-button.primary:hover { background: #b4f0d2; }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.8rem, 8vw, 5rem);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .description {
+      margin: 16px 0 30px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.5;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+      gap: 18px;
+    }
+
+    .game-card {
+      display: flex;
+      min-height: 240px;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 24px;
+      border: 1px solid #52635e;
+      border-radius: 8px;
+      color: var(--ink);
+      background: linear-gradient(145deg, #20363a, var(--panel) 65%);
+      box-shadow: 0 16px 40px #0003;
+      text-decoration: none;
+      transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--mint);
+      box-shadow: 0 20px 48px #0005;
+    }
+
+    .game-icon {
+      display: grid;
+      width: 64px;
+      height: 64px;
+      place-items: center;
+      margin-bottom: 22px;
+      border-radius: 14px;
+      background: #ffd36e1c;
+      font-size: 36px;
+    }
+
+    .game-card h2 {
+      margin: 0 0 8px;
+      font-size: 25px;
+    }
+
+    .game-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .launch-label {
+      margin-top: auto;
+      padding-top: 20px;
+      color: var(--mint);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="page-actions" aria-label="Arcade navigation">
+      <a class="back-link" href="index.html">← Welcome</a>
+      <button class="special-button" id="special-signin" type="button" aria-haspopup="dialog" aria-pressed="false">Special Sign-in</button>
+    </nav>
+    <p class="eyebrow">Choose your game</p>
+    <h1>My Arcade</h1>
+    <p class="description">Pick a game and let the fun begin.</p>
+    <section class="game-grid" aria-label="Available games">
+      <a class="game-card" href="burger-run.html">
+        <span class="game-icon" aria-hidden="true">🍔</span>
+        <h2>Burger Run</h2>
+        <p>Catch the falling burgers and help Bob finish the dinner rush.</p>
+        <span class="launch-label">View game →</span>
+      </a>
+      <a class="game-card" href="rock-paper-scissors.html">
+        <span class="game-icon" aria-hidden="true">✊</span>
+        <h2>Rock, Paper, Scissors</h2>
+        <p>Pick your move and see if you can outsmart the arcade.</p>
+        <span class="launch-label">View game →</span>
+      </a>
+    </section>
+  </main>
+  <dialog class="signin-dialog" id="signin-dialog" aria-labelledby="signin-title">
+    <form id="signin-form">
+      <h2 id="signin-title">Special Sign-in</h2>
+      <p class="signin-copy">Enter your password to turn on auto-win for games in this browser session.</p>
+      <label class="password-label" for="special-password">Password</label>
+      <input class="password-input" id="special-password" name="password" type="password" autocomplete="current-password" required>
+      <p class="signin-error" id="signin-error" role="alert" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button class="dialog-button" id="cancel-signin" type="button">Cancel</button>
+        <button class="dialog-button primary" type="submit">Sign in</button>
+      </div>
+    </form>
+  </dialog>
+  <script>
+    (() => {
+      const modeKey = "myArcadeAutoWin";
+      const signInButton = document.querySelector("#special-signin");
+      const dialog = document.querySelector("#signin-dialog");
+      const form = document.querySelector("#signin-form");
+      const passwordInput = document.querySelector("#special-password");
+      const error = document.querySelector("#signin-error");
+      const cancelButton = document.querySelector("#cancel-signin");
+
+      function updateModeButton() {
+        const enabled = sessionStorage.getItem(modeKey) === "true";
+        signInButton.setAttribute("aria-pressed", String(enabled));
+        signInButton.textContent = enabled ? "Special Mode: On" : "Special Sign-in";
+      }
+
+      signInButton.addEventListener("click", () => {
+        error.textContent = "";
+        form.reset();
+        if (sessionStorage.getItem(modeKey) === "true") {
+          sessionStorage.removeItem(modeKey);
+          updateModeButton();
+          return;
+        }
+        dialog.showModal();
+        passwordInput.focus();
+      });
+
+      cancelButton.addEventListener("click", () => dialog.close());
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        if (passwordInput.value !== "Me'er 14") {
+          error.textContent = "That password did not match. Please try again.";
+          passwordInput.select();
+          return;
+        }
+        sessionStorage.setItem(modeKey, "true");
+        updateModeButton();
+        dialog.close();
+      });
+
+      dialog.addEventListener("close", () => signInButton.focus());
+      updateModeButton();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b25">
+  <title>Rock, Paper, Scissors | My Arcade</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f6f4e9;
+      --muted: #a9b7b8;
+      --sky: #101b25;
+      --panel: #192933;
+      --line: #34464b;
+      --mint: #9ee3c1;
+      --gold: #ffd36e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 50% 5%, #263b3d 0, transparent 46%),
+        repeating-linear-gradient(0deg, transparent 0 39px, #ffffff08 40px),
+        var(--sky);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    .arcade {
+      width: min(100%, 820px);
+      animation: arrive 500ms ease-out both;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 18px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--mint);
+      background: #15232b;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .back-link:hover { background: #20363a; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 6vw, 42px);
+      line-height: 1.1;
+    }
+
+    .eyebrow {
+      margin: 6px 0 22px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .back-link:focus-visible, button:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 4px;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .score {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #15232b;
+      text-align: center;
+    }
+
+    .score-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .score-value {
+      display: block;
+      margin-top: 3px;
+      font-size: 24px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stage {
+      overflow: hidden;
+      border: 1px solid #52635e;
+      border-radius: 8px;
+      background: #12202a;
+      box-shadow: 0 20px 70px #0005, inset 0 0 0 5px #ffffff06;
+    }
+
+    .duel {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      min-height: 205px;
+      padding: 24px;
+      background: radial-gradient(ellipse at center, #263b3d 0, #12202a 72%);
+      text-align: center;
+    }
+
+    .fighter-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+    }
+
+    .fighter-move {
+      display: grid;
+      min-height: 82px;
+      place-items: center;
+      margin-top: 8px;
+      font-size: 56px;
+    }
+
+    .versus {
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .round-result {
+      min-height: 82px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      padding: 12px 20px;
+      border-top: 1px solid #ffffff12;
+      text-align: center;
+    }
+
+    .round-result h2 {
+      margin: 0;
+      font-size: clamp(23px, 5vw, 30px);
+    }
+
+    .round-result p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .controls {
+      padding: 20px;
+      border-top: 1px solid #ffffff12;
+      text-align: center;
+    }
+
+    .controls h2 {
+      margin: 0 0 14px;
+      font-size: 16px;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    button {
+      color: var(--ink);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .choice-button {
+      display: grid;
+      min-height: 104px;
+      align-content: center;
+      justify-items: center;
+      gap: 5px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .choice-button:hover {
+      transform: translateY(-3px);
+      border-color: var(--mint);
+      background: #20363a;
+    }
+
+    .choice-icon { font-size: 36px; line-height: 1.1; }
+    .choice-name { font-size: 14px; }
+
+    .reset-button {
+      margin-top: 16px;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #15232b;
+      font-size: 12px;
+    }
+
+    .reset-button:hover { background: #20363a; }
+
+    .stage-foot {
+      display: flex;
+      justify-content: center;
+      padding: 12px 16px;
+      border-top: 1px solid #ffffff12;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 14px; }
+      .duel { min-height: 175px; gap: 8px; padding: 16px 8px; }
+      .fighter-move { font-size: 46px; }
+      .round-result { padding-inline: 10px; }
+      .controls { padding: 18px 12px; }
+      .choices { gap: 8px; }
+      .choice-button { min-height: 92px; }
+      .choice-icon { font-size: 31px; }
+      .choice-name { font-size: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="arcade">
+    <a class="back-link" href="rock-paper-scissors.html">← Game details</a>
+    <header>
+      <h1>Rock, Paper, Scissors</h1>
+      <p class="eyebrow">Choose your move to play a round</p>
+    </header>
+
+    <section class="scoreboard" aria-label="Score">
+      <div class="score"><span class="score-label">You</span><span class="score-value" id="player-score">0</span></div>
+      <div class="score"><span class="score-label">Ties</span><span class="score-value" id="tie-score">0</span></div>
+      <div class="score"><span class="score-label">Arcade</span><span class="score-value" id="arcade-score">0</span></div>
+    </section>
+
+    <section class="stage" aria-label="Rock, Paper, Scissors game">
+      <div class="duel" aria-label="Last round choices">
+        <div>
+          <div class="fighter-label">You</div>
+          <div class="fighter-move" id="player-move" aria-hidden="true">❔</div>
+        </div>
+        <span class="versus" aria-hidden="true">VS</span>
+        <div>
+          <div class="fighter-label">Arcade</div>
+          <div class="fighter-move" id="arcade-move" aria-hidden="true">❔</div>
+        </div>
+      </div>
+
+      <div class="round-result" aria-live="polite" aria-atomic="true">
+        <h2 id="result-title">Ready?</h2>
+        <p id="result-copy">Choose rock, paper, or scissors to begin.</p>
+      </div>
+
+      <div class="controls">
+        <h2>Make your move</h2>
+        <div class="choices">
+          <button class="choice-button" type="button" data-choice="rock" aria-label="Choose rock">
+            <span class="choice-icon" aria-hidden="true">✊</span><span class="choice-name">Rock</span>
+          </button>
+          <button class="choice-button" type="button" data-choice="paper" aria-label="Choose paper">
+            <span class="choice-icon" aria-hidden="true">✋</span><span class="choice-name">Paper</span>
+          </button>
+          <button class="choice-button" type="button" data-choice="scissors" aria-label="Choose scissors">
+            <span class="choice-icon" aria-hidden="true">✌️</span><span class="choice-name">Scissors</span>
+          </button>
+        </div>
+        <button class="reset-button" id="reset-button" type="button">Reset score</button>
+      </div>
+      <div class="stage-foot">Rock beats scissors · Paper beats rock · Scissors beat paper</div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const moves = {
+        rock: { icon: "✊", beats: "scissors" },
+        paper: { icon: "✋", beats: "rock" },
+        scissors: { icon: "✌️", beats: "paper" }
+      };
+      const choices = Object.keys(moves);
+      const twoPlayer = new URLSearchParams(window.location.search).get("mode") === "two-player";
+      const scores = { player: 0, ties: 0, opponent: 0 };
+      const playerMove = document.querySelector("#player-move");
+      const arcadeMove = document.querySelector("#arcade-move");
+      const resultTitle = document.querySelector("#result-title");
+      const resultCopy = document.querySelector("#result-copy");
+      const playerScore = document.querySelector("#player-score");
+      const tieScore = document.querySelector("#tie-score");
+      const opponentScore = document.querySelector("#arcade-score");
+      const playerLabels = document.querySelectorAll(".fighter-label");
+      const scoreLabels = document.querySelectorAll(".score-label");
+      const controlsTitle = document.querySelector(".controls h2");
+      let firstPlayerChoice = null;
+      const autoWin = sessionStorage.getItem("myArcadeAutoWin") === "true";
+
+      function updateScoreboard() {
+        playerScore.textContent = String(scores.player);
+        tieScore.textContent = String(scores.ties);
+        opponentScore.textContent = String(scores.opponent);
+      }
+
+      function playSolo(playerChoice) {
+        const arcadeChoice = autoWin
+          ? moves[playerChoice].beats
+          : choices[Math.floor(Math.random() * choices.length)];
+        playerMove.textContent = moves[playerChoice].icon;
+        arcadeMove.textContent = moves[arcadeChoice].icon;
+
+        if (playerChoice === arcadeChoice) {
+          scores.ties += 1;
+          resultTitle.textContent = "It's a tie!";
+          resultCopy.textContent = `You both picked ${playerChoice}.`;
+        } else if (moves[playerChoice].beats === arcadeChoice) {
+          scores.player += 1;
+          resultTitle.textContent = "You win!";
+          resultCopy.textContent = `${playerChoice} beats ${arcadeChoice}.`;
+        } else {
+          scores.opponent += 1;
+          resultTitle.textContent = "Arcade wins!";
+          resultCopy.textContent = `${arcadeChoice} beats ${playerChoice}.`;
+        }
+
+        updateScoreboard();
+      }
+
+      function playTwoPlayer(playerChoice) {
+        if (firstPlayerChoice === null) {
+          firstPlayerChoice = playerChoice;
+          playerMove.textContent = "❔";
+          arcadeMove.textContent = "❔";
+          controlsTitle.textContent = "Player 2, make your move";
+          resultTitle.textContent = "Pass the device";
+          resultCopy.textContent = "Player 1's move is hidden. Player 2, choose your move.";
+          return;
+        }
+
+        const secondPlayerChoice = playerChoice;
+        playerMove.textContent = moves[firstPlayerChoice].icon;
+        arcadeMove.textContent = moves[secondPlayerChoice].icon;
+
+        if (firstPlayerChoice === secondPlayerChoice) {
+          scores.ties += 1;
+          resultTitle.textContent = "It's a tie!";
+          resultCopy.textContent = `Both players picked ${firstPlayerChoice}.`;
+        } else if (moves[firstPlayerChoice].beats === secondPlayerChoice) {
+          scores.player += 1;
+          resultTitle.textContent = "Player 1 wins!";
+          resultCopy.textContent = `${firstPlayerChoice} beats ${secondPlayerChoice}.`;
+        } else {
+          scores.opponent += 1;
+          resultTitle.textContent = "Player 2 wins!";
+          resultCopy.textContent = `${secondPlayerChoice} beats ${firstPlayerChoice}.`;
+        }
+
+        firstPlayerChoice = null;
+        controlsTitle.textContent = "Player 1, make your move";
+        updateScoreboard();
+      }
+
+      document.querySelectorAll(".choice-button").forEach(button => {
+        button.addEventListener("click", () => {
+          if (twoPlayer) {
+            playTwoPlayer(button.dataset.choice);
+          } else {
+            playSolo(button.dataset.choice);
+          }
+        });
+      });
+
+      document.querySelector("#reset-button").addEventListener("click", () => {
+        scores.player = 0;
+        scores.ties = 0;
+        scores.opponent = 0;
+        firstPlayerChoice = null;
+        updateScoreboard();
+        playerMove.textContent = "❔";
+        arcadeMove.textContent = "❔";
+        resultTitle.textContent = "Ready?";
+        controlsTitle.textContent = twoPlayer ? "Player 1, make your move" : "Make your move";
+        resultCopy.textContent = twoPlayer
+          ? "Player 1 chooses first. Player 2's move stays hidden until both players have chosen."
+          : "Choose rock, paper, or scissors to begin.";
+      });
+
+      if (twoPlayer) {
+        playerLabels[0].textContent = "Player 1";
+        playerLabels[1].textContent = "Player 2";
+        scoreLabels[0].textContent = "Player 1";
+        scoreLabels[2].textContent = "Player 2";
+        controlsTitle.textContent = "Player 1, make your move";
+        resultCopy.textContent = "Player 1 chooses first. Player 2's move stays hidden until both players have chosen.";
+      }
+    })();
+  </script>
+</body>
+</html>
