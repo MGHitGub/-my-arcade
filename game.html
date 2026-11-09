@@ -540,6 +540,9 @@
 
       function finish(won) {
         running = false;
+        const highScoreKey = "myArcadeBurgerRunHighScore";
+        const highScore = Number(localStorage.getItem(highScoreKey)) || 0;
+        if (caught > highScore) localStorage.setItem(highScoreKey, String(caught));
         gameStatus.textContent = won ? "Shift complete" : "Shift ended";
         dialogKicker.textContent = won ? "Order complete" : "The burgers got away";
         dialogTitle.textContent = won ? "Beautifully delivered" : "Try another shift";

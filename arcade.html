@@ -211,6 +211,13 @@
       line-height: 1.5;
     }
 
+    .high-score {
+      margin-top: 14px;
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
     .launch-label {
       margin-top: auto;
       padding-top: 20px;
@@ -241,12 +248,21 @@
         <span class="game-icon" aria-hidden="true">🍔</span>
         <h2>Burger Run</h2>
         <p>Catch the falling burgers and help Bob finish the dinner rush.</p>
+        <span class="high-score" id="burger-high-score">High score: 0 burgers</span>
         <span class="launch-label">View game →</span>
       </a>
       <a class="game-card" href="rock-paper-scissors.html">
         <span class="game-icon" aria-hidden="true">✊</span>
         <h2>Rock, Paper, Scissors</h2>
         <p>Pick your move and see if you can outsmart the arcade.</p>
+        <span class="high-score" id="rps-high-score">High score: 0 wins</span>
+        <span class="launch-label">View game →</span>
+      </a>
+      <a class="game-card" href="snake.html">
+        <span class="game-icon" aria-hidden="true">🐍</span>
+        <h2>Snake</h2>
+        <p>Eat apples, grow longer, and avoid the walls and your own tail.</p>
+        <span class="high-score" id="snake-high-score">High score: 0 apples</span>
         <span class="launch-label">View game →</span>
       </a>
     </section>
@@ -267,12 +283,22 @@
   <script>
     (() => {
       const modeKey = "myArcadeAutoWin";
+      const burgerHighScoreKey = "myArcadeBurgerRunHighScore";
+      const rpsHighScoreKey = "myArcadeRpsHighScore";
+      const snakeHighScoreKey = "myArcadeSnakeHighScore";
       const signInButton = document.querySelector("#special-signin");
       const dialog = document.querySelector("#signin-dialog");
       const form = document.querySelector("#signin-form");
       const passwordInput = document.querySelector("#special-password");
       const error = document.querySelector("#signin-error");
       const cancelButton = document.querySelector("#cancel-signin");
+
+      document.querySelector("#burger-high-score").textContent =
+        `High score: ${Number(localStorage.getItem(burgerHighScoreKey)) || 0} burgers`;
+      document.querySelector("#rps-high-score").textContent =
+        `High score: ${Number(localStorage.getItem(rpsHighScoreKey)) || 0} wins`;
+      document.querySelector("#snake-high-score").textContent =
+        `High score: ${Number(localStorage.getItem(snakeHighScoreKey)) || 0} apples`;
 
       function updateModeButton() {
         const enabled = sessionStorage.getItem(modeKey) === "true";

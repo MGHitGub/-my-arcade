@@ -317,6 +317,7 @@
       };
       const choices = Object.keys(moves);
       const twoPlayer = new URLSearchParams(window.location.search).get("mode") === "two-player";
+      const highScoreKey = "myArcadeRpsHighScore";
       const scores = { player: 0, ties: 0, opponent: 0 };
       const playerMove = document.querySelector("#player-move");
       const arcadeMove = document.querySelector("#arcade-move");
@@ -335,6 +336,11 @@
         playerScore.textContent = String(scores.player);
         tieScore.textContent = String(scores.ties);
         opponentScore.textContent = String(scores.opponent);
+        const highScore = Number(localStorage.getItem(highScoreKey)) || 0;
+        const bestScore = twoPlayer
+          ? Math.max(scores.player, scores.opponent)
+          : scores.player;
+        if (bestScore > highScore) localStorage.setItem(highScoreKey, String(bestScore));
       }
 
       function playSolo(playerChoice) {

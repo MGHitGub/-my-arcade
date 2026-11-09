@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b25">
+  <title>Snake | My Arcade</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f6f4e9;
+      --muted: #a9b7b8;
+      --sky: #101b25;
+      --panel: #192933;
+      --line: #34464b;
+      --mint: #9ee3c1;
+      --gold: #ffd36e;
+      --coral: #f08b76;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 50% 5%, #263b3d 0, transparent 46%),
+        repeating-linear-gradient(0deg, transparent 0 39px, #ffffff08 40px),
+        var(--sky);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    .arcade {
+      width: min(100%, 820px);
+      animation: arrive 500ms ease-out both;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--mint);
+      background: #15232b;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .back-link:hover { background: #20363a; }
+
+    .back-link:focus-visible, button:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 4px;
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(25px, 5vw, 36px);
+      line-height: 1.1;
+    }
+
+    .eyebrow {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .score {
+      min-width: 92px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #15232b;
+      text-align: center;
+    }
+
+    .score-label {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .score-value {
+      display: block;
+      margin-top: 2px;
+      color: var(--gold);
+      font-size: 20px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stage {
+      overflow: hidden;
+      border: 1px solid #52635e;
+      border-radius: 8px;
+      background: #12202a;
+      box-shadow: 0 20px 70px #0005, inset 0 0 0 5px #ffffff06;
+    }
+
+    .stage-head, .stage-foot {
+      display: flex;
+      min-height: 42px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .stage-head {
+      border-bottom: 1px solid #ffffff12;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .status { display: flex; align-items: center; gap: 8px; color: var(--mint); }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .playfield {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #10251f;
+    }
+
+    canvas { display: block; width: 100%; height: 100%; }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: #0e1920c9;
+      text-align: center;
+    }
+
+    .overlay[hidden] { display: none; }
+    .dialog { width: min(100%, 390px); }
+    .dialog-kicker {
+      margin: 0 0 9px;
+      color: var(--gold);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .dialog h2 { margin: 0; font-size: clamp(27px, 6vw, 40px); line-height: 1.05; }
+    .dialog-copy { margin: 12px auto 20px; color: #c2ceca; font-size: 14px; line-height: 1.5; }
+
+    .dialog-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    button {
+      min-height: 44px;
+      padding: 11px 18px;
+      border: 0;
+      border-radius: 5px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0); }
+
+    #play-button {
+      min-width: 142px;
+      color: #15232a;
+      background: var(--mint);
+    }
+
+    #play-button:hover { background: #b4f0d2; }
+
+    #exit-button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 18px;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: #192933;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    #exit-button:hover { background: #263d43; }
+
+    .stage-foot {
+      justify-content: center;
+      border-top: 1px solid #ffffff12;
+      text-align: center;
+    }
+
+    @media (max-width: 620px) {
+      body { padding: 14px; }
+      .stage-head, .stage-foot { min-height: 38px; padding: 0 10px; font-size: 10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="arcade">
+    <a class="back-link" href="arcade.html">← Exit to the arcade</a>
+    <header class="topline">
+      <div>
+        <h1>Snake</h1>
+        <p class="eyebrow">Eat apples · Don't get caught</p>
+      </div>
+      <div class="score" aria-live="polite">
+        <span class="score-label">Apples</span>
+        <span class="score-value" id="score">0</span>
+      </div>
+    </header>
+
+    <section class="stage" aria-label="Snake game">
+      <div class="stage-head">
+        <span>Snake run</span>
+        <span class="status"><span class="status-dot"></span><span id="game-status">Ready</span></span>
+      </div>
+      <div class="playfield">
+        <canvas id="game" width="720" height="540" tabindex="0" aria-label="Snake game board. Use the arrow keys to move."></canvas>
+        <div class="overlay" id="overlay">
+          <div class="dialog">
+            <p class="dialog-kicker" id="dialog-kicker">Ready to play?</p>
+            <h2 id="dialog-title">Snake</h2>
+            <p class="dialog-copy" id="dialog-copy">Use the arrow keys to steer. Eat apples to grow, and avoid the walls and your own tail.</p>
+            <div class="dialog-actions">
+              <button id="play-button" type="button">Start game</button>
+              <a id="exit-button" href="arcade.html">Exit game</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="stage-foot">Steer with the arrow keys · Apples add one block · Golden apples add three</div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const canvas = document.querySelector("#game");
+      const context = canvas.getContext("2d");
+      const overlay = document.querySelector("#overlay");
+      const playButton = document.querySelector("#play-button");
+      const dialogKicker = document.querySelector("#dialog-kicker");
+      const dialogTitle = document.querySelector("#dialog-title");
+      const dialogCopy = document.querySelector("#dialog-copy");
+      const scoreDisplay = document.querySelector("#score");
+      const gameStatus = document.querySelector("#game-status");
+      const highScoreKey = "myArcadeSnakeHighScore";
+      const autoPlay = sessionStorage.getItem("myArcadeAutoWin") === "true";
+      const columns = 24;
+      const rows = 18;
+      const cellWidth = canvas.width / columns;
+      const cellHeight = canvas.height / rows;
+      const cycle = [];
+      for (let y = 0; y < rows; y += 1) cycle.push({ x: 0, y });
+      for (let y = rows - 1; y >= 1; y -= 1) {
+        if (y % 2 === 1) {
+          for (let x = 1; x < columns; x += 1) cycle.push({ x, y });
+        } else {
+          for (let x = columns - 1; x >= 1; x -= 1) cycle.push({ x, y });
+        }
+      }
+      cycle.push({ x: columns - 1, y: 0 });
+      for (let x = columns - 2; x >= 1; x -= 1) cycle.push({ x, y: 0 });
+      const initialSnake = [
+        { x: 11, y: 9 },
+        { x: 10, y: 9 },
+        { x: 9, y: 9 }
+      ];
+      let snake = [];
+      let apple = null;
+      let direction = { x: 1, y: 0 };
+      let nextDirection = direction;
+      let turnQueued = false;
+      let score = 0;
+      let running = false;
+      let lastStep = 0;
+      let cycleIndex = 0;
+      let growthPending = 0;
+      const stepDuration = 125;
+
+      function drawBoard() {
+        context.fillStyle = "#10251f";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        context.strokeStyle = "#ffffff0b";
+        context.lineWidth = 1;
+        for (let x = 0; x <= columns; x += 1) {
+          context.beginPath();
+          context.moveTo(x * cellWidth, 0);
+          context.lineTo(x * cellWidth, canvas.height);
+          context.stroke();
+        }
+        for (let y = 0; y <= rows; y += 1) {
+          context.beginPath();
+          context.moveTo(0, y * cellHeight);
+          context.lineTo(canvas.width, y * cellHeight);
+          context.stroke();
+        }
+
+        if (apple) {
+          const centerX = (apple.x + .5) * cellWidth;
+          const centerY = (apple.y + .5) * cellHeight;
+          context.fillStyle = apple.golden ? "#ffd36e" : "#f08b76";
+          context.shadowColor = apple.golden ? "#ffd36e" : "#f08b76";
+          context.shadowBlur = apple.golden ? 18 : 8;
+          context.beginPath();
+          context.arc(centerX, centerY + 2, cellWidth * .34, 0, Math.PI * 2);
+          context.fill();
+          context.shadowBlur = 0;
+          context.fillStyle = "#9ee3c1";
+          context.beginPath();
+          context.ellipse(centerX + 5, centerY - cellHeight * .31, 5, 2.5, -.45, 0, Math.PI * 2);
+          context.fill();
+        }
+
+        snake.forEach((segment, index) => {
+          const inset = 2;
+          context.fillStyle = index === 0 ? "#c1f2d8" : "#6fbd91";
+          context.beginPath();
+          context.roundRect(
+            segment.x * cellWidth + inset,
+            segment.y * cellHeight + inset,
+            cellWidth - inset * 2,
+            cellHeight - inset * 2,
+            5
+          );
+          context.fill();
+        });
+      }
+
+      function placeApple() {
+        const emptyCells = [];
+        for (let y = 0; y < rows; y += 1) {
+          for (let x = 0; x < columns; x += 1) {
+            if (!snake.some(segment => segment.x === x && segment.y === y)) {
+              emptyCells.push({ x, y });
+            }
+          }
+        }
+        if (emptyCells.length === 0) {
+          finish(true);
+          return;
+        }
+        const position = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        apple = { ...position, golden: Math.random() < .2 };
+      }
+
+      function updateScore() {
+        scoreDisplay.textContent = String(score);
+        const highScore = Number(localStorage.getItem(highScoreKey)) || 0;
+        if (score > highScore) localStorage.setItem(highScoreKey, String(score));
+      }
+
+      function finish(won = false) {
+        running = false;
+        gameStatus.textContent = won ? "Board cleared" : "Game over";
+        dialogKicker.textContent = won ? "Incredible run" : "Game over";
+        dialogTitle.textContent = won ? "You cleared the board!" : "You Lost. Haha Loser";
+        dialogCopy.textContent = won
+          ? `You ate all the apples and scored ${score}.`
+          : `You ate ${score} apple${score === 1 ? "" : "s"}. Try again?`;
+        playButton.textContent = "Play again";
+        overlay.hidden = false;
+        playButton.focus();
+      }
+
+      function startGame() {
+        cycleIndex = 0;
+        snake = autoPlay
+          ? [cycle[0], cycle[cycle.length - 1], cycle[cycle.length - 2]].map(segment => ({ ...segment }))
+          : initialSnake.map(segment => ({ ...segment }));
+        direction = autoPlay
+          ? { x: cycle[1].x - cycle[0].x, y: cycle[1].y - cycle[0].y }
+          : { x: 1, y: 0 };
+        nextDirection = direction;
+        turnQueued = false;
+        growthPending = 0;
+        score = 0;
+        updateScore();
+        placeApple();
+        drawBoard();
+        if (!apple) return;
+        lastStep = 0;
+        running = true;
+        gameStatus.textContent = autoPlay ? "Special auto-play" : "In play";
+        overlay.hidden = true;
+        canvas.focus({ preventScroll: true });
+      }
+
+      function step() {
+        let head;
+        if (autoPlay) {
+          cycleIndex = (cycleIndex + 1) % cycle.length;
+          head = cycle[cycleIndex];
+          direction = {
+            x: head.x - snake[0].x,
+            y: head.y - snake[0].y
+          };
+        } else {
+          direction = nextDirection;
+          turnQueued = false;
+          head = {
+            x: snake[0].x + direction.x,
+            y: snake[0].y + direction.y
+          };
+        }
+        const eating = head.x === apple.x && head.y === apple.y;
+        const bodyToCheck = eating ? snake : snake.slice(0, -1);
+
+        if (!autoPlay && (head.x < 0 || head.x >= columns || head.y < 0 || head.y >= rows
+          || bodyToCheck.some(segment => segment.x === head.x && segment.y === head.y))) {
+          finish();
+          return;
+        }
+
+        snake.unshift(head);
+        if (eating) {
+          score += 1;
+          growthPending += apple.golden ? 3 : 1;
+          updateScore();
+          placeApple();
+          if (!running) return;
+        }
+        if (growthPending > 0) {
+          growthPending -= 1;
+        } else {
+          snake.pop();
+        }
+        drawBoard();
+      }
+
+      function animate(time) {
+        if (running) {
+          if (!lastStep) lastStep = time;
+          if (time - lastStep >= stepDuration) {
+            lastStep = time;
+            step();
+          }
+        }
+        requestAnimationFrame(animate);
+      }
+
+      const directions = {
+        ArrowUp: { x: 0, y: -1 },
+        ArrowDown: { x: 0, y: 1 },
+        ArrowLeft: { x: -1, y: 0 },
+        ArrowRight: { x: 1, y: 0 }
+      };
+
+      window.addEventListener("keydown", event => {
+        const requestedDirection = directions[event.key];
+        if (!requestedDirection) return;
+        event.preventDefault();
+        if (!running || autoPlay || turnQueued) return;
+        if (requestedDirection.x === -direction.x && requestedDirection.y === -direction.y) return;
+        nextDirection = requestedDirection;
+        turnQueued = true;
+      });
+
+      playButton.addEventListener("click", startGame);
+      drawBoard();
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>
